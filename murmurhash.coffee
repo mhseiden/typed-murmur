@@ -26,8 +26,8 @@ do ->
   CONST[6] = 0xDEADBEEF # seed
   CONST[7] = 0xFFFFFFFF # max int
 
-  # XXX - Math.imul gives correct answers...whereas the fallback does not...
-  imul = Math.imul || (a,b) -> a*b
+  # XXX - Math.imul gives correct answers...whereas the fallback may not...
+  imul = Math.imul || (a,b) -> (a|0)*(b|0)
 
   hashInPlace = ->
 #console.log("k  = ?",REG[0].toString(16))
@@ -67,21 +67,32 @@ do ->
 #console.log("hash ^= hash >>> 16",REG[1].toString(16))
     return
 
+  mix = (hash,data) ->
+    REG[0] = (data|0)
+    REG[1] = (hash|0)
+    hashInPlace()
+    return REG[1]
+
+  finalize = (hash) ->
+    REG[1] = (hash|0)
+    finishInPlace()
+    return REG[1]
+
   hashNumber = (number) ->
-    if 0 == (number % 1)
-      if CONST[7] > number
+    if 0 == ((number|0) % 1)
+      if CONST[7] > (number|0)
 #console.log("number is int32",number)
-        return hashInt32(number)
+        return hashInt32(number|0)
       else
 #console.log("number is int64",number)
-        return hashInt64(number)
+        return hashInt64(number|0)
     else
 #console.log("number is float64",number)
-      return hashFloat64(number)
+      return hashFloat64(number|0)
 
   hashInt32 = (number) ->
     REG[1] = CONST[6]
-    REG[0] = number
+    REG[0] = (number|0)
     hashInPlace()
     finishInPlace()
     return REG[1]
@@ -89,16 +100,16 @@ do ->
   hashInt64 = (number) ->
     REG[1] = CONST[6]
     s = (number).toString(16)
-    REG[0] = parseInt("0x#{s.slice(0,8)}")
+    REG[0] = (parseInt("0x#{s.slice(0,8)}")|0)
     hashInPlace()
-    REG[0] = parseInt("0x#{s.slice(8)}")
+    REG[0] = (parseInt("0x#{s.slice(8)}")|0)
     hashInPlace()
     finishInPlace()
     return REG[1]
 
   hashFloat32 = (number) ->
     REG[1] = CONST[6]
-    NUM32[0] = number
+    NUM32[0] = (+number)
     REG[0] = BITS[0]
     hashInPlace()
     finishInPlace()
@@ -106,7 +117,7 @@ do ->
 
   hashFloat64 = (number) ->
     REG[1] = CONST[6]
-    NUM64[0] = number
+    NUM64[0] = (+number)
     REG[0] = BITS[0]
     hashInPlace()
     REG[0] = BITS[1]
@@ -121,9 +132,9 @@ do ->
     REG[1] = CONST[6]
     length = string.length
     for i in [0...length] by 1
-      REG[0] = string.charAt(i)
+      REG[0] = (string.charAt(i)|0)
       hashInPlace()
-    REG[1] ^= length
+    REG[1] ^= (length|0)
     finishInPlace()
     return REG[1]
 
@@ -135,9 +146,9 @@ do ->
     bytes = new Uint8Array(buffer)
     length = bytes.length
     for i in [0...length] by 1
-      REG[0] = bytes[i]
+      REG[0] = (bytes[i]|0)
       hashInPlace()
-    REG[1] ^= length
+    REG[1] ^= (length|0)
     finishInPlace()
     return REG[1]
 
@@ -147,6 +158,8 @@ do ->
   else
     exports = root.murmurhash = {}
 
+  exports["mix"]              = mix
+  exports["finalize"]         = finalize
   exports["hashNumber"]       = hashNumber
   exports["hashInt32"]        = hashInt32
   exports["hashInt64"]        = hashInt64
