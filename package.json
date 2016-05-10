@@ -1,0 +1,15 @@
+{
+  "name": "typed-murmur",
+  "version": "0.0.1",
+  "description": "A numerically accurate, native JavaScript derivative of the MurmushHash3 algorithm",
+  "main": "murmurhash.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "hashing",
+    "murmurhash"
+  ],
+  "author": "Max Seiden <140dbs@gmail.com>",
+  "license": "MIT"
+}
