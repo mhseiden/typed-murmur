@@ -11,5 +11,13 @@
     "murmurhash"
   ],
   "author": "Max Seiden <140dbs@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mhseiden/typed-murmur.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mhseiden/typed-murmur/issues"
+  },
+  "homepage": "https://github.com/mhseiden/typed-murmur#readme"
 }
